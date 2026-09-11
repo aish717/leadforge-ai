@@ -1,0 +1,30 @@
+{
+  "company_name": "Postman",
+  "industry": "Software Development Tools",
+  "company_description": "Postman is an API platform that simplifies the API lifecycle for developers, ensuring high productivity, great quality, and airtight governance for organizations worldwide.",
+  "products_and_services": [
+    "Postman API Platform",
+    "Postman CLI",
+    "Postman MCP Server",
+    "Postman Fabric",
+    "Postman AI",
+    "Postman OpenAPI Editor",
+    "Postman AI Unit Test Generator",
+    "Postman Multi-step API Monitor"
+  ],
+  "target_customers": [
+    "Developers",
+    "API Teams",
+    "IT Professionals",
+    "Agile Teams",
+    "DevOps Teams",
+    "AI and Machine Learning Engineers"
+  ],
+  "business_model": "Subscription-based pricing with additional features available as add-ons or through partnerships.",
+  "lead_profile": {
+    "lead_type": "B2B",
+    "fit_score": 96,
+    "fit_level": "High",
+    "scoring_method": "Deterministic rule-based scoring"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "company_name": "Stripe",
+  "industry": "Technology",
+  "company_description": "Stripe is a technology company focused on improving economic growth and prosperity by building programmable financial infrastructure.",
+  "products_and_services": [
+    "Payments",
+    "Checkout",
+    "Elements",
+    "Prebuilt payment UIs",
+    "Recurring revenue",
+    "Subscriptions",
+    "Usage-based billing",
+    "Tax sales tax & VAT automation"
+  ],
+  "target_customers": [
+    "Solo founders",
+    "Established enterprises",
+    "Global businesses",
+    "Platforms and marketplaces",
+    "AI companies",
+    "Fintech"
+  ],
+  "business_model": "Pay-as-you-go pricing with volume discounts and multi-product discounts.",
+  "value_proposition": "Global access, 195 countries, 135+ currencies, 100+ payment methods, built-in fraud prevention, and advanced analytics.",
+  "pain_points": [
+    "Complex payment processing",
+    "High transaction fees",
+    "Fraud and security concerns",
+    "Currency conversion issues",
+    "Integration complexity"
+  ],
+  "outreach_angle": "We understand the challenges you face in managing payments and are here to help streamline your operations with our robust financial infrastructure.",
+  "personalized_message": "We noticed your business has been expanding rapidly, especially in India. Stripe's global payments platform and support for businesses across multiple markets create strong opportunities for payment optimization. Our Elements and Prebuilt payment UIs can help you build a seamless checkout experience, and our Fraud Analytics can monitor your fraud performance with advanced analytics and alerting.",
+  "lead_profile": {
+    "lead_type": "Enterprise / B2B",
+    "fit_score": 100,
+    "fit_level": "High",
+    "scoring_method": "Deterministic rule-based scoring"
+  }
+}

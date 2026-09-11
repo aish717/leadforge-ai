@@ -1,0 +1,32 @@
+{
+  "company_name": "Postman",
+  "industry": "Software Development",
+  "company_description": "Postman is an API platform for building and using APIs, simplifying the API lifecycle and streamlining collaboration.",
+  "products_and_services": [
+    "Postman API Platform",
+    "Postman CLI",
+    "Postman MCP Server",
+    "Fern",
+    "Astro AI"
+  ],
+  "target_customers": [
+    "Developers",
+    "API teams",
+    "IT professionals",
+    "Enterprise organizations"
+  ],
+  "business_model": "SaaS (Software as a Service)",
+  "value_proposition": "Postman simplifies the API lifecycle and streamlines collaboration for developers, providing a comprehensive platform for building and using APIs.",
+  "key_business_areas": [
+    "API Platform",
+    "API Testing",
+    "API Documentation",
+    "AI and Automation",
+    "API Governance"
+  ],
+  "lead_profile": {
+    "lead_type": "Enterprise / B2B",
+    "fit_score": 80,
+    "scoring_method": "Deterministic rule-based scoring"
+  }
+}

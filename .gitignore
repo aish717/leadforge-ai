@@ -1,0 +1,17 @@
+# Virtual environment
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Environment / secrets
+.env
+
+# Testing / tooling
+.pytest_cache/
+.idea/
+.vscode/
+
+# Generated output
+output.json
