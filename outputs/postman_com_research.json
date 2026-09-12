@@ -1,30 +1,49 @@
 {
   "company_name": "Postman",
-  "industry": "Software Development Tools",
-  "company_description": "Postman is an API platform that simplifies the API lifecycle for developers, ensuring high productivity, great quality, and airtight governance for organizations worldwide.",
+  "industry": "Software Development",
+  "company_overview": "Postman is a leading API platform that simplifies the API lifecycle for developers and organizations, enabling them to create, test, and manage APIs more efficiently.",
+  "target_audience": [
+    "Developers",
+    "API Engineers",
+    "DevOps Teams",
+    "IT Professionals",
+    "Product Managers",
+    "Business Leaders"
+  ],
+  "contact_points": [
+    "info@postman.com",
+    "info-jp@postman.com",
+    "sales@postman.com",
+    "support@postman.com"
+  ],
+  "leadership_team": [
+    "Abhinav Asthana - CEO and Co-Founder",
+    "Ankit Sobti - Co-Founder",
+    "Abhijit Kane - Co-Founder"
+  ],
   "products_and_services": [
     "Postman API Platform",
     "Postman CLI",
     "Postman MCP Server",
     "Postman Fabric",
-    "Postman AI",
-    "Postman OpenAPI Editor",
-    "Postman AI Unit Test Generator",
-    "Postman Multi-step API Monitor"
+    "Postman AI"
   ],
-  "target_customers": [
-    "Developers",
-    "API Teams",
-    "IT Professionals",
-    "Agile Teams",
-    "DevOps Teams",
-    "AI and Machine Learning Engineers"
+  "business_model": "Freemium model with paid enterprise plans and add-ons",
+  "value_proposition": "Simplify API lifecycle with a user-friendly platform and robust tools for testing, managing, and collaborating on APIs.",
+  "pain_points": [
+    "Complex API testing and management",
+    "Inefficient API development and deployment processes",
+    "Lack of collaboration tools for API teams",
+    "Difficulty in maintaining API governance and security",
+    "High costs of traditional API management solutions"
   ],
-  "business_model": "Subscription-based pricing with additional features available as add-ons or through partnerships.",
+  "outreach_angle": "We are simplifying API development and management for your organization. Our platform and tools are designed to help you streamline your API lifecycle and improve collaboration among your teams.",
+  "personalized_message": "Hi I came across your company's commitment to simplifying the API lifecycle and improving collaboration among teams. We at have been using Postman to streamline our API testing and management processes, and we're impressed with the platform's user-friendly interface and robust features. I would love to discuss how Postman's AI capabilities and collaboration tools could complement our existing infrastructure and help us achieve our goals.",
+  "data_confidence_score": 0.95,
   "lead_profile": {
-    "lead_type": "B2B",
-    "fit_score": 96,
-    "fit_level": "High",
+    "lead_type": "General",
+    "fit_score": 75,
+    "fit_level": "Medium",
     "scoring_method": "Deterministic rule-based scoring"
   }
 }

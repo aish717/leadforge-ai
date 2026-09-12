@@ -4,20 +4,25 @@ import re
 from ollama_client import generate
 
 
-# --------------------------------------------------
-# Prompt
-# --------------------------------------------------
+MAX_LIMITS = {
+    "target_audience": 6,
+    "contact_points": 8,
+    "leadership_team": 8,
+    "products_and_services": 8,
+    "pain_points": 5,
+}
+
 
 def build_company_prompt(
     domain: str,
-    research_text: str
+    research_text: str,
 ) -> str:
-    """Build a compact structured company research prompt."""
+    """Build a structured company research prompt."""
 
     return f"""
 You are a sales intelligence analyst.
 
-Analyze the website research provided below for {domain}.
+Analyze the website research below for {domain}.
 
 Return ONLY ONE VALID JSON OBJECT.
 NO markdown.
@@ -29,124 +34,132 @@ Use EXACTLY these fields:
 {{
   "company_name": "",
   "industry": "",
-  "company_description": "",
+  "company_overview": "",
+  "target_audience": [],
+  "contact_points": [],
+  "leadership_team": [],
   "products_and_services": [],
-  "target_customers": [],
   "business_model": "",
   "value_proposition": "",
   "pain_points": [],
   "outreach_angle": "",
-  "personalized_message": ""
+  "personalized_message": "",
+  "data_confidence_score": 0.0
 }}
 
-STRICT OUTPUT LIMITS:
+STRICT LIMITS:
 
 - company_name: maximum 5 words
 - industry: maximum 5 words
-- company_description: maximum 30 words
+- company_overview: maximum 40 words
+- target_audience: maximum 6 items
+- contact_points: maximum 8 items
+- leadership_team: maximum 8 items
 - products_and_services: maximum 8 items
-- target_customers: maximum 6 items
 - business_model: maximum 25 words
 - value_proposition: maximum 30 words
 - pain_points: maximum 5 items
 - outreach_angle: maximum 30 words
 - personalized_message: maximum 60 words
+- data_confidence_score: number between 0.0 and 1.0
+
+LEADERSHIP TEAM:
+
+Each item must be:
+
+"Name - Role - LinkedIn URL"
+
+If LinkedIn is unavailable:
+
+"Name - Role"
+
+Do NOT invent LinkedIn URLs.
+
+CONTACT POINTS:
+
+Include only actual public contact information found
+in the research.
+
+Examples:
+
+contact@example.com
+sales@example.com
+support@example.com
+
+Do NOT invent email addresses.
 
 IMPORTANT:
 
-1. Use ONLY information supported by the website research.
+1. Use ONLY information supported by the research.
 2. Do NOT invent company facts.
-3. Do NOT repeat items.
-4. Keep every answer concise.
+3. Do NOT repeat information.
+4. Keep everything concise.
 5. Arrays must contain strings.
 6. If information is unavailable, use "" or [].
-7. Return the JSON object and STOP.
+7. data_confidence_score must be between 0.0 and 1.0.
+8. Return the JSON object and STOP.
 
 PERSONALIZED MESSAGE RULES:
 
-8. Write a short, natural external sales outreach message.
-9. The message MUST mention the actual company_name.
-10. The message MUST mention at least ONE real product, service,
-   customer type, business characteristic, or value proposition
-   supported by the research.
-11. Do NOT pretend that the sender works for the researched company.
-12. Do NOT address an unknown person by name.
-13. Do NOT use placeholders.
-14. Do NOT use square brackets anywhere in personalized_message.
-15. NEVER use:
-   [Name]
-   [Your Name]
-   [Company Name]
-   [company_name]
-   [industry]
-   [Industry]
-   [Product]
-   [products]
-   [products_and_services]
-   or anything else inside square brackets.
-16. Do NOT use "your company", "the company", or "the business"
-   when the actual company name is available.
-17. Do not write a generic description of the researched company.
-18. Start with an observation about the actual researched company.
-19. Keep the message professional and concise.
-20. The message must sound like a real external sales outreach message.
-21. Do NOT write as if you are Stripe, Microsoft, Google, etc.
-22. The sender is an external company offering a potential solution.
-23. Do not use "we noticed your business has been growing" unless
-    the research explicitly supports that claim.
-24. Do not invent growth, revenue, customers, partnerships,
-    problems, or business needs.
+9. Write personalized_message specifically for the researched company.
+10. Mention the ACTUAL company name.
+11. Mention at least ONE actual product, service, customer type,
+    or business characteristic from the research.
+12. Write a natural external sales/outreach message.
+13. Do NOT pretend the sender works for the researched company.
+14. Do NOT write a generic company description.
+15. Do NOT address an unknown person by name.
+16. NEVER use placeholders.
+17. NEVER use square brackets.
+18. NEVER use text such as:
+    [Name]
+    [Your Name]
+    [Company Name]
+    [company_name]
+    [industry]
+    [Industry]
+    [Product]
+    [products_and_services]
+19. Do NOT use generic template phrases such as:
+    "your company"
+    "your business"
+    "the company"
+    "the business"
+    when the actual company name can be used.
+20. The final message must sound like real personalized outreach.
 
 GOOD EXAMPLE:
 
-"Stripe's global payments platform and support for businesses
-across multiple markets create strong opportunities for payment
-optimization. We'd be interested in exploring how our solution
-could complement Stripe's existing infrastructure."
+"Stripe's global payments platform and support for multiple
+payment methods create strong opportunities to improve
+payment experiences. We would be interested in exploring
+how our solution could complement Stripe's existing
+infrastructure."
 
-Use the actual researched company facts instead of copying
-the example.
+BAD EXAMPLE:
 
-Domain:
-{domain}
+"Dear [Name], as a [industry] professional, I understand
+your company's needs."
 
-Website Research:
+RESEARCH:
+
 {research_text}
 """
 
 
-# --------------------------------------------------
-# JSON cleaning
-# --------------------------------------------------
-
 def clean_json_response(response: str) -> str:
-    """Extract and clean JSON returned by the model."""
+    """Extract JSON from the model response."""
 
     cleaned = response.strip()
 
-    # Remove markdown code fences.
-    cleaned = re.sub(
-        r"^```json\s*",
-        "",
-        cleaned,
-        flags=re.IGNORECASE,
-    )
+    if "```json" in cleaned:
+        cleaned = cleaned.split("```json", 1)[1]
 
-    cleaned = re.sub(
-        r"^```\s*",
-        "",
-        cleaned,
-    )
-
-    cleaned = re.sub(
-        r"\s*```$",
-        "",
-        cleaned,
-    )
+    if "```" in cleaned:
+        cleaned = cleaned.split("```", 1)[0]
 
     cleaned = cleaned.strip()
 
-    # Extract the JSON object if the model added text.
     start = cleaned.find("{")
     end = cleaned.rfind("}")
 
@@ -156,109 +169,87 @@ def clean_json_response(response: str) -> str:
     return cleaned.strip()
 
 
-# --------------------------------------------------
-# Validation / normalization
-# --------------------------------------------------
-
-def validate_enrichment(
-    result: dict
-) -> dict:
-    """
-    Validate and normalize AI enrichment.
-
-    This function also enforces all output limits so
-    the local model cannot produce oversized lists
-    or excessively long messages.
-    """
+def validate_enrichment(result: dict) -> dict:
+    """Validate and normalize AI enrichment."""
 
     required_fields = [
         "company_name",
         "industry",
-        "company_description",
+        "company_overview",
+        "target_audience",
+        "contact_points",
+        "leadership_team",
         "products_and_services",
-        "target_customers",
         "business_model",
         "value_proposition",
         "pain_points",
         "outreach_angle",
         "personalized_message",
+        "data_confidence_score",
     ]
-
-    # --------------------------------------------------
-    # Add missing fields
-    # --------------------------------------------------
 
     for field in required_fields:
 
         if field not in result:
 
             if field in [
+                "target_audience",
+                "contact_points",
+                "leadership_team",
                 "products_and_services",
-                "target_customers",
                 "pain_points",
             ]:
                 result[field] = []
 
+            elif field == "data_confidence_score":
+                result[field] = 0.0
+
             else:
                 result[field] = ""
 
-    # --------------------------------------------------
-    # Normalize arrays
-    # --------------------------------------------------
+    array_fields = [
+        "target_audience",
+        "contact_points",
+        "leadership_team",
+        "products_and_services",
+        "pain_points",
+    ]
 
-    array_limits = {
-        "products_and_services": 8,
-        "target_customers": 6,
-        "pain_points": 5,
-    }
-
-    for field, limit in array_limits.items():
+    for field in array_fields:
 
         value = result.get(field)
 
         if isinstance(value, str):
 
-            value = [
-                value.strip()
-            ] if value.strip() else []
+            if value.strip():
+                result[field] = [value.strip()]
+            else:
+                result[field] = []
 
         elif isinstance(value, list):
 
-            value = [
-                str(item).strip()
-                for item in value
-                if str(item).strip()
-            ]
+            cleaned_items = []
+
+            for item in value:
+
+                text = str(item).strip()
+
+                if text:
+                    cleaned_items.append(text)
+
+            result[field] = cleaned_items
 
         else:
+            result[field] = []
 
-            value = []
-
-        # Remove duplicates while preserving order.
-        unique_values = []
-        seen = set()
-
-        for item in value:
-
-            key = item.lower()
-
-            if key not in seen:
-
-                seen.add(key)
-                unique_values.append(item)
-
-        # IMPORTANT:
-        # Enforce the hard maximum.
-        result[field] = unique_values[:limit]
-
-    # --------------------------------------------------
-    # Normalize text fields
-    # --------------------------------------------------
+    # Enforce maximum array sizes.
+    for field, limit in MAX_LIMITS.items():
+        result[field] = result[field][:limit]
 
     text_fields = [
         "company_name",
         "industry",
-        "company_description",
+        "company_overview",
         "business_model",
         "value_proposition",
         "outreach_angle",
@@ -270,351 +261,106 @@ def validate_enrichment(
         value = result.get(field, "")
 
         if value is None:
-
             result[field] = ""
 
         else:
-
             result[field] = str(value).strip()
 
-    # --------------------------------------------------
-    # Enforce personalized message limit
-    # --------------------------------------------------
-
-    message = result.get(
-        "personalized_message",
-        ""
-    ).strip()
-
-    words = message.split()
-
-    if len(words) > 60:
-
-        # Keep complete sentences where possible.
-        shortened = " ".join(words[:60])
-
-        # Avoid ending on an obvious incomplete word sequence.
-        last_sentence = max(
-            shortened.rfind("."),
-            shortened.rfind("!"),
-            shortened.rfind("?"),
+    # Normalize confidence score.
+    try:
+        confidence = float(
+            result.get(
+                "data_confidence_score",
+                0.0,
+            )
         )
 
-        if last_sentence >= 20:
+    except (TypeError, ValueError):
+        confidence = 0.0
 
-            shortened = shortened[
-                :last_sentence + 1
-            ]
-
-        else:
-
-            shortened = shortened.rstrip(
-                " ,;:-"
-            ) + "."
-
-        result["personalized_message"] = shortened
+    result["data_confidence_score"] = min(
+        max(confidence, 0.0),
+        1.0,
+    )
 
     return result
 
 
-# --------------------------------------------------
-# Personalized message fallback
-# --------------------------------------------------
+def check_personalized_message(result: dict) -> None:
+    """Validate and clean the personalized outreach message."""
 
-def build_fallback_personalized_message(
-    result: dict
-) -> str:
-    """
-    Build a deterministic personalized outreach message.
-
-    This is used when the local LLM produces:
-    - placeholders
-    - generic wording
-    - missing company name
-    - invalid message content
-    """
-
-    company_name = str(
-        result.get(
-            "company_name",
-            ""
-        )
-    ).strip()
-
-    industry = str(
-        result.get(
-            "industry",
-            ""
-        )
-    ).strip()
-
-    products = result.get(
-        "products_and_services",
-        []
-    )
-
-    customers = result.get(
-        "target_customers",
-        []
-    )
-
-    value_proposition = str(
-        result.get(
-            "value_proposition",
-            ""
-        )
-    ).strip()
-
-    business_model = str(
-        result.get(
-            "business_model",
-            ""
-        )
-    ).strip()
-
-    # --------------------------------------------------
-    # Select real researched facts
-    # --------------------------------------------------
-
-    product = ""
-
-    if isinstance(products, list) and products:
-        product = str(products[0]).strip()
-
-    customer = ""
-
-    if isinstance(customers, list) and customers:
-        customer = str(customers[0]).strip()
-
-    # --------------------------------------------------
-    # Build external sales message
-    # --------------------------------------------------
-
-    if company_name and product:
-
-        message = (
-            f"{company_name}'s work with {product} caught our "
-            f"attention. We'd be interested in exploring how "
-            f"our solution could complement {company_name}'s "
-            f"existing capabilities and support continued growth."
-        )
-
-    elif company_name and customer:
-
-        message = (
-            f"{company_name}'s focus on serving {customer} "
-            f"caught our attention. We'd be interested in "
-            f"exploring how our solution could complement "
-            f"{company_name}'s existing capabilities and "
-            f"support continued growth."
-        )
-
-    elif company_name and industry:
-
-        message = (
-            f"{company_name}'s position in {industry} caught "
-            f"our attention. We'd be interested in exploring "
-            f"how our solution could complement "
-            f"{company_name}'s capabilities and support "
-            f"continued growth."
-        )
-
-    elif company_name and value_proposition:
-
-        short_value = value_proposition.rstrip(". ")
-
-        message = (
-            f"{company_name}'s approach to {short_value} "
-            f"caught our attention. We'd be interested in "
-            f"exploring how our solution could complement "
-            f"{company_name}'s capabilities."
-        )
-
-    elif company_name and business_model:
-
-        short_model = business_model.rstrip(". ")
-
-        message = (
-            f"{company_name}'s {short_model} model caught "
-            f"our attention. We'd be interested in exploring "
-            f"how our solution could complement "
-            f"{company_name}'s capabilities and support "
-            f"continued growth."
-        )
-
-    elif company_name:
-
-        message = (
-            f"{company_name}'s capabilities caught our "
-            f"attention. We'd be interested in exploring "
-            f"how our solution could complement "
-            f"{company_name}'s existing capabilities."
-        )
-
-    else:
-
-        message = (
-            "The researched company's capabilities caught "
-            "our attention. We'd be interested in exploring "
-            "potential opportunities to work together."
-        )
-
-    # --------------------------------------------------
-    # Final hard limit
-    # --------------------------------------------------
-
-    words = message.split()
-
-    if len(words) > 60:
-
-        message = " ".join(
-            words[:60]
-        )
-
-        if not message.endswith(
-            (".", "!", "?")
-        ):
-            message += "."
-
-    return message
-
-
-# --------------------------------------------------
-# Personalized message validation
-# --------------------------------------------------
-
-def personalized_message_is_valid(
-    result: dict
-) -> bool:
-    """
-    Check whether the AI-generated message is safe
-    and appropriate to display.
-    """
-
-    message = str(
-        result.get(
-            "personalized_message",
-            ""
-        )
-    ).strip()
-
-    company_name = str(
-        result.get(
-            "company_name",
-            ""
-        )
-    ).strip()
+    message = result.get("personalized_message", "").strip()
+    company_name = result.get("company_name", "").strip()
 
     if not message:
-        return False
+        raise ValueError(
+            "The AI generated an empty personalized message."
+        )
 
-    if not company_name:
-        return False
+    # Remove common greeting placeholders.
+    message = re.sub(
+        r"\[name\]\s*,?\s*",
+        "",
+        message,
+        flags=re.IGNORECASE,
+    )
 
-    message_lower = message.lower()
-
-    # --------------------------------------------------
-    # Hard 60-word limit
-    # --------------------------------------------------
-
-    if len(message.split()) > 60:
-        return False
-
-    # --------------------------------------------------
-    # Reject square-bracket placeholders
-    # --------------------------------------------------
-
-    if re.search(
+    # Remove other square-bracket placeholders.
+    message = re.sub(
         r"\[[^\]]+\]",
-        message
-    ):
-        return False
+        "",
+        message,
+    )
 
-    # --------------------------------------------------
-    # Reject common template placeholders
-    # --------------------------------------------------
+    # Remove common template phrases.
+    message = re.sub(
+        r"\bDear\s*,",
+        "",
+        message,
+        flags=re.IGNORECASE,
+    )
 
-    forbidden_phrases = [
-        "[name]",
-        "[your name]",
-        "[company name]",
-        "[company_name]",
-        "[industry]",
-        "[industry name]",
-        "[product]",
-        "[products]",
-        "[products_and_services]",
-        "your name",
-        "your company",
-        "the company",
-        "the business",
-    ]
+    message = re.sub(
+        r"\bDear\s+professional\s*,?",
+        "",
+        message,
+        flags=re.IGNORECASE,
+    )
 
-    for phrase in forbidden_phrases:
+    message = re.sub(
+        r"\s{2,}",
+        " ",
+        message,
+    ).strip()
 
-        if phrase in message_lower:
-            return False
+    # The message must contain the actual company name.
+    if company_name and company_name.lower() not in message.lower():
+        raise ValueError(
+            "The personalized message does not mention "
+            "the researched company name."
+        )
 
-    # --------------------------------------------------
-    # Must mention actual company
-    # --------------------------------------------------
+    # Reject if anything resembling a placeholder remains.
+    if re.search(r"\[[^\]]+\]", message):
+        raise ValueError(
+            "The personalized message still contains "
+            "a placeholder."
+        )
 
-    if company_name.lower() not in message_lower:
-        return False
-
-    # --------------------------------------------------
-    # Reject pretending to be the researched company
-    # --------------------------------------------------
-
-    impersonation_patterns = [
-        "we are " + company_name.lower(),
-        "we're " + company_name.lower(),
-        "at " + company_name.lower() + ", we",
-        "our " + company_name.lower() + " platform",
-        "our " + company_name.lower() + " products",
-        "our " + company_name.lower() + " services",
-    ]
-
-    for phrase in impersonation_patterns:
-
-        if phrase in message_lower:
-            return False
-
-    return True
+    # Save the cleaned message back into the result.
+    result["personalized_message"] = message
 
 
-# --------------------------------------------------
-# Main enrichment
-# --------------------------------------------------
-
-def enrich_company(
-    domain: str,
-    research_text: str
+def parse_and_validate_response(
+    response: str,
 ) -> dict:
-    """Use the local LLM to enrich company research."""
+    """Parse, normalize and validate one AI response."""
 
-    prompt = build_company_prompt(
-        domain,
-        research_text
-    )
-
-    response = generate(
-        prompt
-    )
-
-    cleaned = clean_json_response(
-        response
-    )
-
-    # --------------------------------------------------
-    # Parse JSON
-    # --------------------------------------------------
+    cleaned = clean_json_response(response)
 
     try:
 
-        result = json.loads(
-            cleaned
-        )
+        result = json.loads(cleaned)
 
     except json.JSONDecodeError as error:
 
@@ -629,47 +375,107 @@ def enrich_company(
             "The AI response must be a JSON object."
         )
 
-    # --------------------------------------------------
-    # Normalize and enforce limits
-    # --------------------------------------------------
+    result = validate_enrichment(result)
 
-    result = validate_enrichment(
-        result
+    check_personalized_message(result)
+
+    return result
+
+
+def build_retry_prompt(
+    domain: str,
+    research_text: str,
+) -> str:
+    """
+    Build a stricter retry prompt when the first AI response
+    contains invalid personalized outreach.
+    """
+
+    return f"""
+You previously generated invalid output.
+
+Generate the company enrichment again for {domain}.
+
+IMPORTANT:
+The personalized_message MUST NOT contain ANY placeholders.
+
+Do NOT use:
+[Name]
+[Your Name]
+[Company Name]
+[company_name]
+[industry]
+[Product]
+[anything inside square brackets]
+
+Do NOT use:
+your company
+your business
+the company
+the business
+
+Use the ACTUAL researched company name.
+
+The personalized message MUST:
+- mention the actual company name
+- mention at least one real product, service, customer type,
+  or business characteristic from the research
+- sound like external sales outreach
+- contain no placeholders
+- contain no square brackets
+- be 60 words or fewer
+
+Return ONLY valid JSON.
+
+Use EXACTLY these fields:
+
+{{
+  "company_name": "",
+  "industry": "",
+  "company_overview": "",
+  "target_audience": [],
+  "contact_points": [],
+  "leadership_team": [],
+  "products_and_services": [],
+  "business_model": "",
+  "value_proposition": "",
+  "pain_points": [],
+  "outreach_angle": "",
+  "personalized_message": "",
+  "data_confidence_score": 0.0
+}}
+
+RESEARCH:
+
+{research_text}
+"""
+
+
+def enrich_company(
+    domain: str,
+    research_text: str,
+) -> dict:
+    """Use the local LLM to enrich company research."""
+
+    prompt = build_company_prompt(
+        domain,
+        research_text,
     )
 
-    # --------------------------------------------------
-    # Automatically fix bad AI messages
-    # --------------------------------------------------
+    print("\nGenerating AI enrichment...")
 
-    if not personalized_message_is_valid(
-        result
-    ):
+    response = generate(prompt)
 
-        result["personalized_message"] = (
-            build_fallback_personalized_message(
-                result
-            )
-        )
+    try:
+        result = parse_and_validate_response(response)
 
-    # --------------------------------------------------
-    # Final safety check
-    # --------------------------------------------------
+    except ValueError as error:
 
-    # The deterministic fallback should always be valid.
-    # If the company name is genuinely unavailable,
-    # keep the message rather than failing the entire
-    # company analysis.
-
-    if result.get("company_name"):
-
-        if not personalized_message_is_valid(
-            result
-        ):
-
-            result["personalized_message"] = (
-                build_fallback_personalized_message(
-                    result
-                )
-            )
-
+        raise ValueError(
+            "AI enrichment returned invalid structured data.\n"
+            f"{error}"
+        ) from error
+    
+    result = validate_enrichment(result)
+    check_personalized_message(result)
     return result

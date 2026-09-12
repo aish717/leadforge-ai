@@ -1,0 +1,52 @@
+{
+  "company_name": "Supabase",
+  "industry": "Software Development",
+  "company_overview": "Supabase is a leading open-source platform for building database, authentication, and real-time features for web and mobile applications.",
+  "target_audience": [
+    "Developers",
+    "AI Builders",
+    "Enterprise Teams",
+    "Startups",
+    "Agencies",
+    "Innovation Teams"
+  ],
+  "contact_points": [
+    "support@supabase.com",
+    "sales@supabase.com",
+    "info@supabase.com"
+  ],
+  "leadership_team": [
+    "Solomon Hykes - CTO - https://www.linkedin.com/in/solomonhykes/",
+    "Thorsten Schaeff - DevRel - https://www.linkedin.com/in/thorsten-schaeff/",
+    "Paul Copplestone - DevRel - https://www.linkedin.com/in/paulcopplestone/",
+    "Chase Granberry - DevRel - https://www.linkedin.com/in/chasegranberry/",
+    "Lee Robinson - DevRel - https://www.linkedin.com/in/leerobinson/",
+    "Mathias Biilmann Christensen - CTO - https://www.linkedin.com/in/mathiasbiilmann/"
+  ],
+  "products_and_services": [
+    "Database",
+    "Authentication",
+    "Realtime",
+    "Functions",
+    "Storage",
+    "Edge Functions",
+    "Vectors",
+    "Row Level Security"
+  ],
+  "business_model": "Freemium model with paid enterprise features and services.",
+  "value_proposition": "Supabase provides a complete backend for AI-built applications, enabling rapid development and deployment without the need for complex infrastructure.",
+  "pain_points": [
+    "Building complex backend systems from scratch",
+    "Ensuring enterprise-level security and scalability",
+    "Managing multiple databases and services"
+  ],
+  "outreach_angle": "We help AI builders and enterprise teams build production-ready applications faster and more efficiently using Supabase's comprehensive platform.",
+  "personalized_message": "Hello I hope this message finds you well. As a professional, I understand the importance of having a robust backend for your AI-built applications. We at Supabase are excited to share how our platform can help you streamline your development process and ensure your applications are secure and scalable. Our team has extensive experience in building production-ready applications and can provide you with a demo to showcase how Supabase can complement your existing tools. We look forward to the opportunity to discuss how Supabase can be a valuable addition to your team.",
+  "data_confidence_score": 0.95,
+  "lead_profile": {
+    "lead_type": "General",
+    "fit_score": 70,
+    "fit_level": "Medium",
+    "scoring_method": "Deterministic rule-based scoring"
+  }
+}

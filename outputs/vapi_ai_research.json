@@ -1,0 +1,40 @@
+{
+  "company_name": "Vapi",
+  "industry": "AI Voice",
+  "company_overview": "Vapi provides advanced voice AI agents for businesses of all sizes, enabling them to communicate with customers more effectively.",
+  "target_audience": [
+    "Small businesses",
+    "Global enterprises",
+    "Automotive",
+    "Healthcare",
+    "Home security",
+    "Insurance"
+  ],
+  "contact_points": [
+    "sales@vapi.ai",
+    "support@vapi.ai"
+  ],
+  "leadership_team": [],
+  "products_and_services": [
+    "Custom voices and models",
+    "HIPAA compliance",
+    "Zero data retention",
+    "Enterprise-grade SOC 2, HIPAA, PCI, SSO, RBAC"
+  ],
+  "business_model": "Usage-based call minutes, fixed platform fee, committed volume, volume-based pricing",
+  "value_proposition": "Efficient, scalable, and secure voice AI solutions for businesses of all sizes.",
+  "pain_points": [
+    "Manual call center operations",
+    "Inefficient customer interactions",
+    "High costs of traditional voice solutions"
+  ],
+  "outreach_angle": "Vapi's advanced voice AI agents can significantly improve customer experiences and reduce costs for businesses.",
+  "personalized_message": "Dear I noticed your company, , is already using Vapi's advanced voice AI agents to improve customer interactions and reduce costs. I would love to discuss how we can further enhance your voice AI infrastructure and help you scale your business.",
+  "data_confidence_score": 0.6,
+  "lead_profile": {
+    "lead_type": "General",
+    "fit_score": 65,
+    "fit_level": "Medium",
+    "scoring_method": "Deterministic rule-based scoring"
+  }
+}

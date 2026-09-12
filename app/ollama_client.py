@@ -6,22 +6,23 @@ MODEL = "qwen2.5:3b"
 
 
 def generate(prompt: str) -> str:
-    """Generate text using the local Ollama model."""
+    """Generate structured text using the local Ollama model."""
 
     payload = {
         "model": MODEL,
         "prompt": prompt,
         "stream": False,
+        "format": "json",
         "options": {
-            "temperature": 0.1,
-            "num_predict": 700,
+            "temperature": 0.0,
+            "num_predict": 800,
         },
     }
 
     response = httpx.post(
         OLLAMA_URL,
         json=payload,
-        timeout=180.0,
+        timeout=300.0,
     )
 
     response.raise_for_status()
